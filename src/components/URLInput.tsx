@@ -1,5 +1,3 @@
-import { useState } from 'react'
-
 interface URLInputProps {
   url: string
   onChange: (url: string) => void
