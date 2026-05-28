@@ -1,7 +1,8 @@
 {
-  "name": "yt-dlp-gui",
+  "name": "sakura-fetch",
   "private": true,
   "version": "1.0.0",
+  "description": "SakuraFetch - A cute anime-style video downloader based on yt-dlp",
   "type": "module",
   "scripts": {
     "dev": "vite",

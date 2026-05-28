@@ -1,7 +1,7 @@
 [package]
-name = "yt-dlp-gui"
+name = "sakura-fetch"
 version = "1.0.0"
-description = "YT-DLP GUI - 视频下载器"
+description = "SakuraFetch - A cute anime-style video downloader"
 authors = ["you"]
 license = "MIT"
 repository = ""

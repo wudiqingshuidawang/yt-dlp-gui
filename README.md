@@ -1,110 +1,59 @@
-# 🎬 YT-DLP GUI
+# SakuraFetch ✿
 
-一个现代化的 yt-dlp GUI 界面，让视频下载变得简单直观。
+一个可爱的动漫风格视频下载工具，基于 yt-dlp 构建。
 
-## ✨ 功能特点
+## ✨ 特性
 
-- 🎯 **简单易用** - 粘贴 URL 即可解析
-- 🎨 **现代界面** - 美观的渐变色 UI
-- ⚡ **多种格式** - 支持不同质量和格式
-- 📊 **下载进度** - 实时显示下载状态
-- ⚙️ **灵活配置** - 代理、路径、文件名模板
-- 🔄 **批量下载** - 支持播放列表
+- 🌸 动漫风格界面，樱花主题
+- 🎬 支持 YouTube、Bilibili 等主流视频平台
+- 📺 视频/音频/字幕多种下载模式
+- 🎵 音频格式转换 (MP3, AAC, FLAC, WAV)
+- 📝 字幕下载与嵌入
+- 📋 下载历史记录
+- ⚡ 多线程并发下载
 
 ## 📦 安装
 
-### 前置要求
+### macOS
+下载 `.dmg` 文件，拖入 Applications 文件夹即可。
 
-1. 安装 [yt-dlp](https://github.com/yt-dlp/yt-dlp)
-   ```bash
-   brew install yt-dlp
-   ```
+### Windows
+下载 `.msi` 安装包，双击安装。
 
-2. 安装 [Node.js](https://nodejs.org/)
+### Linux
+下载 `.AppImage` 或 `.deb` 文件。
 
-3. 安装 [Rust](https://rustup.rs/)
-
-### 开发模式
+## 🛠️ 开发
 
 ```bash
-# 克隆项目
-git clone https://github.com/wudiqingshuidawang/yt-dlp-gui.git
-cd yt-dlp-gui
-
 # 安装依赖
 npm install
 
-# 启动开发服务器
+# 开发模式
 npm run tauri dev
-```
 
-### 构建应用
-
-```bash
 # 构建生产版本
 npm run tauri build
 ```
 
-## 🚀 使用方法
+## 📋 依赖
 
-1. 启动应用
-2. 粘贴视频 URL
-3. 点击"解析视频"
-4. 选择格式和质量
-5. 点击"下载"
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) - 视频下载引擎
+- [Tauri](https://tauri.app/) - 桌面应用框架
+- [React](https://react.dev/) - UI 框架
+- [Vite](https://vitejs.dev/) - 构建工具
 
-## 📁 项目结构
+## 🎨 界面预览
 
-```
-yt-dlp-gui/
-├── src-tauri/           # Tauri 后端 (Rust)
-│   ├── src/
-│   │   └── main.rs     # 后端逻辑
-│   ├── Cargo.toml
-│   └── tauri.conf.json
-├── src/                 # React 前端
-│   ├── App.tsx         # 主应用
-│   ├── components/     # UI 组件
-│   │   ├── URLInput.tsx
-│   │   ├── VideoInfo.tsx
-│   │   ├── DownloadList.tsx
-│   │   └── Settings.tsx
-│   └── styles.css      # 样式
-├── package.json
-└── README.md
-```
-
-## 🛠️ 技术栈
-
-- **前端**: React + TypeScript + Tailwind CSS
-- **后端**: Tauri (Rust)
-- **下载引擎**: yt-dlp
-
-## ⚙️ 配置
-
-### 代理设置
-
-在设置页面配置代理：
-```
-http://127.0.0.1:7897
-```
-
-### 文件名模板
-
-可用变量：
-- `%(title)s` - 视频标题
-- `%(ext)s` - 文件扩展名
-- `%(id)s` - 视频 ID
-- `%(upload_date)s` - 上传日期
-
-## 🤝 贡献
-
-欢迎提交 Issue 和 Pull Request！
+动漫风格界面，包含樱花飘落、星星闪烁等装饰效果。
+支持 Re:Zero、Guilty Crown 等动漫角色主题。
 
 ## 📄 许可证
 
 MIT License
 
----
+## 🙏 致谢
 
-⭐ 如果觉得有用，请给个 Star！
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) - 强大的视频下载工具
+- [Tauri](https://tauri.app/) - 优秀的桌面应用框架
+- 所有动漫角色的创作者

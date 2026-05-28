@@ -1,4 +1,4 @@
-# YT-DLP GUI — 视频下载器
+# SakuraFetch ✿ — 视频下载器
 
 ## 项目愿景
 一个现代化的 yt-dlp GUI 界面，让视频下载变得简单直观。

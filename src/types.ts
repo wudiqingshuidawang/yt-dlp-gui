@@ -62,3 +62,14 @@ export interface DownloadProgressEvent {
   downloaded_size?: string
   total_size?: string
 }
+
+export interface HistoryItem {
+  id: string
+  title: string
+  thumbnail: string
+  url: string
+  downloadType: DownloadMode
+  format: Format
+  filePath?: string
+  completedAt: number
+}

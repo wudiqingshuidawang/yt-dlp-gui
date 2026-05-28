@@ -4,8 +4,25 @@ import { listen } from '@tauri-apps/api/event'
 import URLInput from './components/URLInput'
 import VideoInfo from './components/VideoInfo'
 import DownloadList from './components/DownloadList'
+import History from './components/History'
 import Settings from './components/Settings'
-import type { VideoInfo as VideoInfoType, Format, DownloadItem, DownloadProgressEvent, DownloadMode, DownloadType } from './types'
+import AnimeDecorations from './components/AnimeDecorations'
+import type { VideoInfo as VideoInfoType, Format, DownloadItem, DownloadProgressEvent, DownloadMode, DownloadType, HistoryItem } from './types'
+
+const HISTORY_KEY = 'yt-dlp-gui-history'
+
+function loadHistory(): HistoryItem[] {
+  try {
+    const data = localStorage.getItem(HISTORY_KEY)
+    return data ? JSON.parse(data) : []
+  } catch {
+    return []
+  }
+}
+
+function saveHistory(history: HistoryItem[]) {
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 200)))
+}
 
 function App() {
   const [url, setUrl] = useState('')
@@ -26,6 +43,13 @@ function App() {
   const [selectedSubtitles, setSelectedSubtitles] = useState<string[]>([])
   const [embedSubtitles, setEmbedSubtitles] = useState(false)
 
+  // History state
+  const [history, setHistory] = useState<HistoryItem[]>(loadHistory)
+  const [showHistory, setShowHistory] = useState(false)
+
+  // Current view: 'input' | 'downloads'
+  const [view, setView] = useState<'input' | 'downloads'>('input')
+
   useEffect(() => {
     const unlisten = listen<DownloadProgressEvent>('download-progress', (event) => {
       const { download_id, progress, speed, eta, status, error: err, file_path, downloaded_size, total_size } = event.payload
@@ -34,6 +58,22 @@ function App() {
         prev.map((d) => {
           if (d.downloadId !== download_id) return d
           if (status === 'completed') {
+            // Save to history
+            const historyItem: HistoryItem = {
+              id: d.id,
+              title: d.title,
+              thumbnail: d.thumbnail,
+              url: d.url,
+              downloadType: d.downloadType,
+              format: d.selectedFormat,
+              filePath: file_path,
+              completedAt: Date.now(),
+            }
+            setHistory((prev) => {
+              const newHistory = [historyItem, ...prev.filter((h) => !(h.id === d.id && h.downloadType === d.downloadType))]
+              saveHistory(newHistory)
+              return newHistory
+            })
             return { ...d, status: 'completed', progress: 100, speed: '', eta: '', filePath: file_path }
           }
           if (status === 'error') {
@@ -140,10 +180,8 @@ function App() {
     }
 
     setDownloads((prev) => [...prev, item])
-    setVideo(null)
-    setSelectedFormat(null)
-    setSelectedSubtitles([])
-    setUrl('')
+    setView('downloads')
+    // Keep video info so user can download again in different format
 
     try {
       await invoke('download', {
@@ -237,16 +275,64 @@ function App() {
     setDownloads((prev) => prev.filter((d) => d.status !== 'completed'))
   }
 
+  const handleBackToInput = () => {
+    setView('input')
+  }
+
+  const handleHistorySelect = (item: HistoryItem) => {
+    setUrl(item.url)
+    setShowHistory(false)
+    setView('input')
+    // Auto-submit
+    setTimeout(() => {
+      handleURLSubmit()
+    }, 100)
+  }
+
+  const handleHistoryDelete = (id: string, downloadType: string) => {
+    setHistory((prev) => {
+      const newHistory = prev.filter((h) => !(h.id === id && h.downloadType === downloadType))
+      saveHistory(newHistory)
+      return newHistory
+    })
+  }
+
+  const handleClearHistory = () => {
+    setHistory([])
+    saveHistory([])
+  }
+
+  const activeDownloads = downloads.filter((d) => d.status === 'downloading' || d.status === 'pending')
+  const hasActiveDownloads = activeDownloads.length > 0
+
   return (
     <div className="container">
+      <AnimeDecorations />
       <header className="header">
         <div className="logo">
           <span className="icon">▶</span>
-          <h1>YT-DLP GUI</h1>
+          <h1>SakuraFetch ✿</h1>
         </div>
-        <button className="settings-btn" onClick={() => setShowSettings(true)}>
-          ⚙
-        </button>
+        <div className="header-actions">
+          <button
+            className="nav-btn"
+            onClick={() => setShowHistory(!showHistory)}
+            title="下载历史"
+          >
+            📋 历史
+          </button>
+          {view === 'downloads' && (
+            <button
+              className="nav-btn back-btn"
+              onClick={handleBackToInput}
+            >
+              ← 返回解析
+            </button>
+          )}
+          <button className="settings-btn" onClick={() => setShowSettings(true)}>
+            ⚙
+          </button>
+        </div>
       </header>
 
       <main className="main">
@@ -257,42 +343,81 @@ function App() {
           </div>
         )}
 
-        <URLInput
-          url={url}
-          onChange={setUrl}
-          onSubmit={handleURLSubmit}
-          isLoading={isLoading}
-        />
-
-        {video && (
-          <VideoInfo
-            video={video}
-            selectedFormat={selectedFormat}
-            audioFormat={audioFormat}
-            audioQuality={audioQuality}
-            selectedSubtitles={selectedSubtitles}
-            embedSubtitles={embedSubtitles}
-            activeTab={activeTab}
-            onFormatSelect={handleFormatSelect}
-            onAudioFormatChange={setAudioFormat}
-            onAudioQualityChange={setAudioQuality}
-            onSubtitleToggle={handleSubtitleToggle}
-            onEmbedSubtitlesChange={setEmbedSubtitles}
-            onTabChange={setActiveTab}
-            onDownload={handleDownload}
+        {showHistory ? (
+          <History
+            history={history}
+            onSelect={handleHistorySelect}
+            onDelete={handleHistoryDelete}
+            onClear={handleClearHistory}
+            onClose={() => setShowHistory(false)}
           />
-        )}
+        ) : view === 'input' ? (
+          <>
+            <URLInput
+              url={url}
+              onChange={setUrl}
+              onSubmit={handleURLSubmit}
+              isLoading={isLoading}
+            />
 
-        {downloads.length > 0 && (
-          <DownloadList
-            downloads={downloads}
-            onCancel={handleCancel}
-            onOpenFile={handleOpenFile}
-            onOpenFolder={handleOpenFolder}
-            onRetry={handleRetry}
-            onRemove={handleRemove}
-            onClearCompleted={handleClearCompleted}
-          />
+            {video && (
+              <VideoInfo
+                video={video}
+                selectedFormat={selectedFormat}
+                audioFormat={audioFormat}
+                audioQuality={audioQuality}
+                selectedSubtitles={selectedSubtitles}
+                embedSubtitles={embedSubtitles}
+                activeTab={activeTab}
+                onFormatSelect={handleFormatSelect}
+                onAudioFormatChange={setAudioFormat}
+                onAudioQualityChange={setAudioQuality}
+                onSubtitleToggle={handleSubtitleToggle}
+                onEmbedSubtitlesChange={setEmbedSubtitles}
+                onTabChange={setActiveTab}
+                onDownload={handleDownload}
+              />
+            )}
+
+            {downloads.length > 0 && !video && (
+              <div className="recent-downloads">
+                <div className="section-header">
+                  <h3>最近下载</h3>
+                  <button className="text-btn" onClick={() => setView('downloads')}>
+                    查看全部 →
+                  </button>
+                </div>
+                <DownloadList
+                  downloads={downloads.slice(-3)}
+                  onCancel={handleCancel}
+                  onOpenFile={handleOpenFile}
+                  onOpenFolder={handleOpenFolder}
+                  onRetry={handleRetry}
+                  onRemove={handleRemove}
+                  onClearCompleted={handleClearCompleted}
+                  compact
+                />
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="downloads-view">
+            <div className="section-header">
+              <h3>下载列表 {hasActiveDownloads && `(${activeDownloads.length} 进行中)`}</h3>
+              <button className="text-btn" onClick={handleClearCompleted}>
+                清除已完成
+              </button>
+            </div>
+            <DownloadList
+              downloads={downloads}
+              onCancel={handleCancel}
+              onOpenFile={handleOpenFile}
+              onOpenFolder={handleOpenFolder}
+              onRetry={handleRetry}
+              onRemove={handleRemove}
+              onClearCompleted={handleClearCompleted}
+            />
+          </div>
         )}
       </main>
 

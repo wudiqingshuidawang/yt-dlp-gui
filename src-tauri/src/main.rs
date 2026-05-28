@@ -147,10 +147,32 @@ fn parse_progress_line(line: &str) -> Option<(f64, String, String, Option<String
     Some((percent, speed, eta, downloaded_size, total_size))
 }
 
+fn get_cookie_args() -> Vec<String> {
+    // 1. Check if a cookies.txt file exists (user can provide manually)
+    let home = std::env::var("HOME").unwrap_or_default();
+    let cookie_paths = [
+        format!("{}/cookies.txt", home),
+        format!("{}/Downloads/cookies.txt", home),
+        format!("{}/.config/yt-dlp/cookies.txt", home),
+    ];
+    for path in &cookie_paths {
+        if std::path::Path::new(path).exists() {
+            return vec!["--cookies".to_string(), path.clone()];
+        }
+    }
+    // 2. Auto-read from Chrome browser (real-time, never expires)
+    //    macOS will prompt for keychain password on first use
+    vec!["--cookies-from-browser".to_string(), "chrome".to_string()]
+}
+
 #[tauri::command]
 async fn get_video_info(url: String) -> Result<VideoInfo, String> {
+    let mut args = vec!["--dump-json".to_string(), "--no-download".to_string()];
+    args.extend(get_cookie_args());
+    args.push(url.clone());
+
     let output = tauri::api::process::Command::new("yt-dlp")
-        .args(["--dump-json", "--no-download", &url])
+        .args(&args)
         .output()
         .map_err(|e| format!("Failed to execute yt-dlp: {}", e))?;
 
@@ -161,6 +183,13 @@ async fn get_video_info(url: String) -> Result<VideoInfo, String> {
                 .lines()
                 .find(|l| l.contains("ERROR"))
                 .unwrap_or(stderr);
+            // Give helpful hint about cookies for YouTube bot detection
+            if msg.contains("Sign in") || msg.contains("bot") || msg.contains("cookies") {
+                return Err(format!(
+                    "{}\n\n💡 提示: YouTube 需要 cookies 验证。请将 cookies.txt 文件放到以下任一位置:\n  • ~/cookies.txt\n  • ~/Downloads/cookies.txt\n  • ~/.config/yt-dlp/cookies.txt\n\n获取方式: 在 Chrome 中安装 \"Get cookies.txt LOCALLY\" 扩展，导出 YouTube 的 cookies",
+                    msg
+                ));
+            }
             return Err(msg.to_string());
         }
         return Err(format!("yt-dlp failed: {}", stderr));
@@ -355,6 +384,9 @@ async fn download(
         output_template,
         "--no-overwrites".to_string(),
     ];
+
+    // Add cookies
+    args.extend(get_cookie_args());
 
     match &download_type {
         DownloadType::Video { format_id } => {

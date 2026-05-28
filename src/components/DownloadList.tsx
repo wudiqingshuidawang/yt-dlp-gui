@@ -8,6 +8,7 @@ interface DownloadListProps {
   onRetry: (item: DownloadItem) => void
   onRemove: (downloadId: string) => void
   onClearCompleted: () => void
+  compact?: boolean
 }
 
 function DownloadList({
@@ -18,6 +19,7 @@ function DownloadList({
   onRetry,
   onRemove,
   onClearCompleted,
+  compact = false,
 }: DownloadListProps) {
   const getStatusIcon = (status: DownloadItem['status']) => {
     switch (status) {
@@ -53,7 +55,7 @@ function DownloadList({
   const hasCompleted = downloads.some((d) => d.status === 'completed')
 
   return (
-    <div className="download-list">
+    <div className={`download-list ${compact ? 'compact' : ''}`}>
       <div className="download-list-header">
         <h3>Downloads</h3>
         {hasCompleted && (
