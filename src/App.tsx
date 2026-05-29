@@ -36,11 +36,41 @@ function App() {
   const [filenameTemplate, setFilenameTemplate] = useState('%(title)s.%(ext)s')
   const downloadCounter = useRef(0)
 
-  // Settings state
-  const [theme, setTheme] = useState<'light' | 'dark'>('light')
-  const [maxConcurrent, setMaxConcurrent] = useState(3)
-  const [proxy, setProxy] = useState('')
-  const [defaultAudioFormat, setDefaultAudioFormat] = useState('mp3')
+  // Settings state with persistence
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('sakurafetch-theme')
+    if (saved === 'dark' || saved === 'light') return saved
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  })
+  const [maxConcurrent, setMaxConcurrent] = useState(() => {
+    const saved = localStorage.getItem('sakurafetch-max-concurrent')
+    return saved ? parseInt(saved) : 3
+  })
+  const [proxy, setProxy] = useState(() => {
+    return localStorage.getItem('sakurafetch-proxy') || ''
+  })
+  const [defaultAudioFormat, setDefaultAudioFormat] = useState(() => {
+    return localStorage.getItem('sakurafetch-audio-format') || 'mp3'
+  })
+
+  // Apply theme to document
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('sakurafetch-theme', theme)
+  }, [theme])
+
+  // Save other settings
+  useEffect(() => {
+    localStorage.setItem('sakurafetch-max-concurrent', maxConcurrent.toString())
+  }, [maxConcurrent])
+
+  useEffect(() => {
+    localStorage.setItem('sakurafetch-proxy', proxy)
+  }, [proxy])
+
+  useEffect(() => {
+    localStorage.setItem('sakurafetch-audio-format', defaultAudioFormat)
+  }, [defaultAudioFormat])
 
   // Tab state
   const [activeTab, setActiveTab] = useState<DownloadMode>('video')
