@@ -1955,3 +1955,202 @@ body::after {
     transform: scale(1.05);
   }
 }
+
+/* ---------- DOWNLOAD QUEUE ---------- */
+
+.download-queue {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.queue-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 16px;
+  background: var(--card);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.queue-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--gray);
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.queue-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.queue-section h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark);
+  margin: 0;
+}
+
+.queue-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.queue-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--card);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.queue-item.active {
+  border-left: 3px solid var(--primary);
+}
+
+.queue-item.queued {
+  opacity: 0.7;
+}
+
+.queue-item.completed {
+  opacity: 0.6;
+}
+
+.queue-item.error {
+  border-left: 3px solid var(--danger);
+}
+
+.queue-item-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.queue-position {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  background: rgba(255, 107, 157, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.queue-title {
+  font-size: 14px;
+  color: var(--dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.queue-error {
+  font-size: 12px;
+  color: var(--danger);
+}
+
+.queue-item-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  min-width: 40px;
+  text-align: right;
+}
+
+.queue-item-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 80px;
+}
+
+.speed, .eta {
+  font-size: 11px;
+  color: var(--gray);
+}
+
+.queue-item-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.queue-item-actions button {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.btn-pause {
+  background: rgba(255, 179, 71, 0.1);
+  color: var(--warning);
+}
+
+.btn-pause:hover {
+  background: rgba(255, 179, 71, 0.2);
+}
+
+.btn-cancel, .btn-remove {
+  background: rgba(255, 107, 107, 0.1);
+  color: var(--danger);
+}
+
+.btn-cancel:hover, .btn-remove:hover {
+  background: rgba(255, 107, 107, 0.2);
+}
+
+.btn-retry {
+  background: rgba(107, 203, 119, 0.1);
+  color: var(--success);
+}
+
+.btn-retry:hover {
+  background: rgba(107, 203, 119, 0.2);
+}
