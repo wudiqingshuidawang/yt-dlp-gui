@@ -459,6 +459,16 @@ function App() {
             onClear={handleClearHistory}
             onClose={() => setShowHistory(false)}
           />
+        ) : showQueue ? (
+          <DownloadQueue
+            downloads={downloads}
+            maxConcurrent={maxConcurrent}
+            onPause={handlePause}
+            onResume={handleResume}
+            onCancel={handleCancel}
+            onRemove={handleRemove}
+            onClearCompleted={handleClearCompleted}
+          />
         ) : view === 'input' ? (
           <>
             <URLInput
