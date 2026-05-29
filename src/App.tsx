@@ -311,7 +311,7 @@ function App() {
       <header className="header">
         <div className="logo">
           <span className="icon">▶</span>
-          <h1>SakuraFetch ✿</h1>
+          <h1>SakuraFetch</h1>
         </div>
         <div className="header-actions">
           <button

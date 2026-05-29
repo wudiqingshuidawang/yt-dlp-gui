@@ -73,3 +73,15 @@ export interface HistoryItem {
   filePath?: string
   completedAt: number
 }
+
+export type BatchItemStatus = 'pending' | 'parsing' | 'ready' | 'downloading' | 'completed' | 'error'
+
+export interface BatchVideoItem {
+  url: string
+  video: VideoInfo | null
+  selectedFormat: Format | null
+  status: BatchItemStatus
+  error?: string
+  progress: number
+  downloadId?: string
+}
