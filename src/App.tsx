@@ -36,6 +36,12 @@ function App() {
   const [filenameTemplate, setFilenameTemplate] = useState('%(title)s.%(ext)s')
   const downloadCounter = useRef(0)
 
+  // Settings state
+  const [theme, setTheme] = useState<'light' | 'dark'>('light')
+  const [maxConcurrent, setMaxConcurrent] = useState(3)
+  const [proxy, setProxy] = useState('')
+  const [defaultAudioFormat, setDefaultAudioFormat] = useState('mp3')
+
   // Tab state
   const [activeTab, setActiveTab] = useState<DownloadMode>('video')
   const [audioFormat, setAudioFormat] = useState('mp3')
@@ -425,8 +431,16 @@ function App() {
         <Settings
           downloadPath={downloadPath}
           filenameTemplate={filenameTemplate}
+          theme={theme}
+          maxConcurrent={maxConcurrent}
+          proxy={proxy}
+          defaultAudioFormat={defaultAudioFormat}
           onDownloadPathChange={setDownloadPath}
           onFilenameTemplateChange={setFilenameTemplate}
+          onThemeChange={setTheme}
+          onMaxConcurrentChange={setMaxConcurrent}
+          onProxyChange={setProxy}
+          onDefaultAudioFormatChange={setDefaultAudioFormat}
           onClose={() => setShowSettings(false)}
         />
       )}
