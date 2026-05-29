@@ -1,4 +1,5 @@
 import type { DownloadItem } from '../types'
+import Tooltip from './Tooltip'
 
 interface DownloadListProps {
   downloads: DownloadItem[]
@@ -23,12 +24,45 @@ function DownloadList({
 }: DownloadListProps) {
   const getStatusIcon = (status: DownloadItem['status']) => {
     switch (status) {
-      case 'pending': return '⏳'
-      case 'downloading': return '⬇'
-      case 'completed': return '✓'
-      case 'error': return '✕'
-      case 'cancelled': return '⊘'
-      default: return '?'
+      case 'pending':
+        return (
+          <svg className="status-icon status-pending" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="2" strokeDasharray="4 3" opacity="0.6">
+              <animateTransform attributeName="transform" type="rotate" values="0 10 10;360 10 10" dur="3s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="10" cy="10" r="2" fill="currentColor" opacity="0.5" />
+          </svg>
+        )
+      case 'downloading':
+        return (
+          <svg className="status-icon status-downloading" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 3v10M10 13l-4-4M10 13l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M4 15h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.4" />
+          </svg>
+        )
+      case 'completed':
+        return (
+          <svg className="status-icon status-completed" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="2" />
+            <path d="M6.5 10l2.5 2.5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )
+      case 'error':
+        return (
+          <svg className="status-icon status-error" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="2" />
+            <path d="M7.5 7.5l5 5M12.5 7.5l-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        )
+      case 'cancelled':
+        return (
+          <svg className="status-icon status-cancelled" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="2" strokeDasharray="3 3" />
+            <path d="M7 10h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        )
+      default:
+        return <span className="status-icon">?</span>
     }
   }
 
@@ -83,22 +117,24 @@ function DownloadList({
                 )}
               </div>
               {item.status === 'downloading' && (
-                <button
-                  className="action-btn cancel"
-                  onClick={() => onCancel(item.downloadId)}
-                  title="Cancel download"
-                >
-                  Cancel
-                </button>
+                <Tooltip text="Cancel download">
+                  <button
+                    className="action-btn cancel"
+                    onClick={() => onCancel(item.downloadId)}
+                  >
+                    Cancel
+                  </button>
+                </Tooltip>
               )}
               {(item.status === 'completed' || item.status === 'error' || item.status === 'cancelled') && (
-                <button
-                  className="action-btn remove"
-                  onClick={() => onRemove(item.downloadId)}
-                  title="Remove from list"
-                >
-                  ✕
-                </button>
+                <Tooltip text="Remove from list">
+                  <button
+                    className="action-btn remove"
+                    onClick={() => onRemove(item.downloadId)}
+                  >
+                    ✕
+                  </button>
+                </Tooltip>
               )}
             </div>
 
@@ -127,18 +163,22 @@ function DownloadList({
               <div className="download-actions">
                 {item.filePath && (
                   <>
-                    <button
-                      className="action-btn"
-                      onClick={() => onOpenFile(item.filePath!)}
-                    >
-                      Open File
-                    </button>
-                    <button
-                      className="action-btn"
-                      onClick={() => onOpenFolder(item.filePath!)}
-                    >
-                      Open Folder
-                    </button>
+                    <Tooltip text="Open the downloaded file">
+                      <button
+                        className="action-btn"
+                        onClick={() => onOpenFile(item.filePath!)}
+                      >
+                        Open File
+                      </button>
+                    </Tooltip>
+                    <Tooltip text="Open containing folder">
+                      <button
+                        className="action-btn"
+                        onClick={() => onOpenFolder(item.filePath!)}
+                      >
+                        Open Folder
+                      </button>
+                    </Tooltip>
                   </>
                 )}
               </div>
@@ -146,12 +186,14 @@ function DownloadList({
 
             {item.status === 'error' && (
               <div className="download-actions">
-                <button
-                  className="action-btn retry"
-                  onClick={() => onRetry(item)}
-                >
-                  Retry
-                </button>
+                <Tooltip text="Retry this download">
+                  <button
+                    className="action-btn retry"
+                    onClick={() => onRetry(item)}
+                  >
+                    Retry
+                  </button>
+                </Tooltip>
               </div>
             )}
           </div>
