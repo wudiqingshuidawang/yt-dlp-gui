@@ -41,7 +41,7 @@ export interface DownloadItem {
   selectedFormat: Format
   url: string
   downloadType: DownloadMode
-  status: 'pending' | 'downloading' | 'completed' | 'error' | 'cancelled'
+  status: 'pending' | 'downloading' | 'completed' | 'error' | 'cancelled' | 'paused'
   progress: number
   speed: string
   eta: string

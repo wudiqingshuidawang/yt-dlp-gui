@@ -6,6 +6,7 @@ import VideoInfo from './components/VideoInfo'
 import DownloadList from './components/DownloadList'
 import History from './components/History'
 import Settings from './components/Settings'
+import DownloadQueue from './components/DownloadQueue'
 import AnimeDecorations from './components/AnimeDecorations'
 import type { VideoInfo as VideoInfoType, Format, DownloadItem, DownloadProgressEvent, DownloadMode, DownloadType, HistoryItem } from './types'
 
@@ -85,6 +86,7 @@ function App() {
 
   // Current view: 'input' | 'downloads'
   const [view, setView] = useState<'input' | 'downloads'>('input')
+  const [showQueue, setShowQueue] = useState(false)
 
   useEffect(() => {
     const unlisten = listen<DownloadProgressEvent>('download-progress', (event) => {
@@ -307,6 +309,64 @@ function App() {
     setDownloads((prev) => prev.filter((d) => d.downloadId !== downloadId))
   }
 
+  const handlePause = async (downloadId: string) => {
+    try {
+      await invoke('cancel_download', { downloadId })
+    } catch (err) {
+      console.error('Pause failed:', err)
+    }
+    setDownloads((prev) =>
+      prev.map((d) =>
+        d.downloadId === downloadId
+          ? { ...d, status: 'paused' as const, speed: '', eta: '' }
+          : d
+      )
+    )
+  }
+
+  const handleResume = async (downloadId: string) => {
+    const item = downloads.find((d) => d.downloadId === downloadId)
+    if (!item) return
+
+    downloadCounter.current += 1
+    const newDownloadId = `dl-${Date.now()}-${downloadCounter.current}`
+
+    setDownloads((prev) =>
+      prev.map((d) =>
+        d.downloadId === downloadId
+          ? { ...d, downloadId: newDownloadId, status: 'pending' as const, progress: 0, error: undefined, speed: '', eta: '' }
+          : d
+      )
+    )
+
+    let downloadType: DownloadType
+    if (item.downloadType === 'video') {
+      downloadType = { type: 'video', format_id: item.selectedFormat.format_id }
+    } else if (item.downloadType === 'audio') {
+      downloadType = { type: 'audio', audio_format: item.selectedFormat.ext, audio_quality: 0 }
+    } else {
+      downloadType = { type: 'subtitle', languages: selectedSubtitles, embed: embedSubtitles }
+    }
+
+    try {
+      await invoke('download', {
+        url: item.url,
+        downloadType,
+        outputDir: downloadPath,
+        filenameTemplate,
+        downloadId: newDownloadId,
+      })
+    } catch (err) {
+      setDownloads((prev) =>
+        prev.map((d) =>
+          d.downloadId === newDownloadId
+            ? { ...d, status: 'error', error: String(err) }
+            : d
+        )
+      )
+    }
+  }
+
   const handleClearCompleted = () => {
     setDownloads((prev) => prev.filter((d) => d.status !== 'completed'))
   }
@@ -357,6 +417,18 @@ function App() {
           >
             📋 历史
           </button>
+          {downloads.length > 0 && (
+            <button
+              className={`nav-btn queue-btn${showQueue ? ' active' : ''}`}
+              onClick={() => {
+                setShowQueue(!showQueue)
+                if (!showQueue) setView('downloads')
+              }}
+              title="下载队列"
+            >
+              📊 队列
+            </button>
+          )}
           {view === 'downloads' && (
             <button
               className="nav-btn back-btn"

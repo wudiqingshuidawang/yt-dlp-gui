@@ -14,6 +14,7 @@ interface SettingsProps {
   onMaxConcurrentChange: (max: number) => void
   onProxyChange: (proxy: string) => void
   onDefaultAudioFormatChange: (format: string) => void
+  onSave?: () => void
   onClose: () => void
 }
 
@@ -32,6 +33,7 @@ function Settings({
   onMaxConcurrentChange,
   onProxyChange,
   onDefaultAudioFormatChange,
+  onSave,
   onClose,
 }: SettingsProps) {
   const [localPath, setLocalPath] = useState(downloadPath)
@@ -53,6 +55,7 @@ function Settings({
     onDownloadPathChange(localPath)
     onFilenameTemplateChange(localTemplate)
     onProxyChange(localProxy)
+    onSave?.()
     onClose()
   }
 
