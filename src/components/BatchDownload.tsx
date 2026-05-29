@@ -105,38 +105,10 @@ export default function BatchDownload({ onDownloadAll, onClose, isLoading }: Bat
   }
 
   const readyItems = items.filter((i) => i.status === 'ready')
-
   const handleDownloadAll = () => {
+    const readyItems = items.filter((i) => i.status === 'ready')
     if (readyItems.length === 0) return
     onDownloadAll(readyItems, activeTab, globalFormat, audioFormat, audioQuality)
-  }
-
-  const getBestFormatForTab = (): Format | null => {
-    if (activeTab === 'video') {
-      return globalFormat
-    }
-    if (activeTab === 'audio') {
-      return {
-        format_id: 'audio',
-        ext: audioFormat,
-        resolution: 'audio only',
-        filesize: 0,
-        quality: audioFormat.toUpperCase(),
-        vcodec: 'none',
-        acodec: audioFormat,
-        bitrate: 0,
-      }
-    }
-    return {
-      format_id: 'subtitle',
-      ext: 'srt',
-      resolution: 'N/A',
-      filesize: 0,
-      quality: 'Subtitles',
-      vcodec: 'none',
-      acodec: 'none',
-      bitrate: 0,
-    }
   }
 
   const allFormats = readyItems
@@ -225,6 +197,21 @@ export default function BatchDownload({ onDownloadAll, onClose, isLoading }: Bat
                     {fmt.toUpperCase()}
                   </button>
                 ))}
+              </div>
+              <div className="option-group" style={{ marginTop: '12px' }}>
+                <label>音频质量</label>
+                <input
+                  type="range"
+                  className="quality-slider"
+                  min={0}
+                  max={9}
+                  value={audioQuality}
+                  onChange={(e) => setAudioQuality(Number(e.target.value))}
+                />
+                <div className="slider-labels">
+                  <span>低质量</span>
+                  <span>高质量</span>
+                </div>
               </div>
             </div>
           )}
